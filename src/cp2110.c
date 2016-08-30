@@ -23,21 +23,24 @@
  *
  */
 
-#include <hidapi/hidapi.h>
+#include "hidapi.h"
+#include "cp2110.h"
 #include <stdio.h>
 #include <stdint.h>
 #include <string.h>
-#include "cp2110.h"
 
 
 struct hid_device_info *CP2110_enumerate(void) {
-  return hid_enumerate(CP2110_VID, CP2110_PID); 
+  return hid_enumerate(CP2110_VID, CP2110_PID);
 }
 
-CP2110_dev *CP2110_init(void) {
+CP2110_dev *CP2110_init(wchar_t *serial_number) {
   CP2110_dev *handle;
-  handle = hid_open(CP2110_VID, CP2110_PID, NULL);
-  hid_set_nonblocking(handle, 1);
+  handle = hid_open(CP2110_VID, CP2110_PID, serial_number);
+  if (!handle) {
+    return NULL;
+  }
+  hid_set_nonblocking(handle, 0);
   return handle;
 }
 
@@ -141,7 +144,7 @@ int CP2110_write(CP2110_dev *handle, char *tx_buf, int len) {
     memcpy(buf+1, tx_buf+index, REPORT_DATA_RX_TX_MAX);
     ret = hid_write(handle, buf, sizeof(buf));
     if (ret < 0) return ret;
-    n_sent += ret-1;
+    n_sent += ret ? ret-1 : 0;
     if (ret < REPORT_DATA_RX_TX_MAX+1) {
       // Not all bytes were written, assume error and return
       return n_sent;
@@ -154,7 +157,7 @@ int CP2110_write(CP2110_dev *handle, char *tx_buf, int len) {
     memcpy(buf+1, tx_buf+index, len);
     ret = hid_write(handle, buf, len+1);
     if (ret < 0) return ret;
-    n_sent += ret-1;
+    n_sent += ret ? ret-1 : 0;
   }
   return n_sent;
 }
@@ -169,10 +172,10 @@ int CP2110_read(CP2110_dev *handle, char *rx_buf, int len) {
   while (len >= REPORT_DATA_RX_TX_MAX) {
     buf[0] = REPORT_DATA_RX_TX_MAX;
     ret = hid_read(handle, buf, sizeof(buf));
-    if (ret < 0) return ret;
+    if (ret < 0) return ret; 
     n_read += ret ? ret-1 : 0;
 
-    if (ret) memcpy(rx_buf+index, buf, n_read);
+    if (ret) memcpy(rx_buf+index, buf+1, ret-1);
 
     if (ret < REPORT_DATA_RX_TX_MAX) {
       // Not all bytes were written, assume error and return
@@ -187,7 +190,7 @@ int CP2110_read(CP2110_dev *handle, char *rx_buf, int len) {
     if (ret < 0) return ret;
     n_read += ret ? ret-1 : 0;
 
-    if (ret) memcpy(rx_buf+index, buf, n_read);
+    if (ret) memcpy(rx_buf+index, buf+1, ret-1);
   }
   return n_read;
 }
