@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
-#include <hidapi/hidapi.h>
+#include "hidapi.h"
 #include "cp2110.h"
 
 #define MAX_STR 255
@@ -26,7 +26,7 @@ int main() {
 
   puts("CP2110 found, connecting...");
 
-  cp2110 = CP2110_init();
+  cp2110 = CP2110_init(NULL);
 
   if (!cp2110) {
     puts("*could not connect");

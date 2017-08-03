@@ -27,7 +27,8 @@
 #define _CP2110_H_
 
 #include <stdint.h>
-#include <hidapi/hidapi.h>
+
+#define MAX_STR 255
 
 #define CP2110_VID 0x10c4
 #define CP2110_PID 0xea80
@@ -56,20 +57,46 @@
  * A connected CP2110 device handle.
  */
 typedef hid_device CP2110_dev;
+typedef struct
+{
+    char            path[MAX_STR];
+	unsigned short  vendor_id;
+	unsigned short  product_id;
+    wchar_t         serial_number[MAX_STR];
+	unsigned short  release_number;
+	wchar_t         manufacturer_string[MAX_STR];
+	wchar_t         product_string[MAX_STR];
+	unsigned short  usage_page;
+	unsigned short  usage;
+	int             interface_number;
+} cp2110_hid_dev_info_t;
+typedef struct
+{
+    unsigned int numDevs;
+    cp2110_hid_dev_info_t* devs;
+} cp2110_enum_ary_t;
 
 /**
  * @brief Enumerates all connected CP2110 devices (with default VID/PID).
  *
- * @return Returns a pointer to an array hidapi hid_device_info structs.
+ * @return Returns a pointer to a link list of hidapi hid_device_info structs.
  */
 struct hid_device_info *CP2110_enumerate(void);
+
+/**
+ * @brief Enumerates all connected CP2110 devices (with default VID/PID).
+ *
+ * @return Returns a pointer to hid_device_info_ary which contains an array hidapi hid_device_info structs.
+ */
+cp2110_enum_ary_t *CP2110_enumerate_array(void);
+
 
 /**
  * @brief Connects to the first attached CP2110.
  *
  * @return Returns a CP2110_dev pointer to the open CP2110.
  */
-CP2110_dev *CP2110_init(void);
+CP2110_dev *CP2110_init(wchar_t *serial_number);
 
 /**
  * @brief Closes from the given CP2110 connection.
