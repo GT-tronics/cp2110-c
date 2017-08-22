@@ -142,7 +142,7 @@ class CP2110_Enum_Ary(ctypes.Structure):
 class SLABHIDDevice():
 
     def __init__(self):
-        self.hidLib = ctypes.cdll.LoadLibrary("./cp2110-c.so")
+        self.hidLib = ctypes.cdll.LoadLibrary("./cp2110-c-for-pi.so")
         self.device = ctypes.c_void_p()
         
 
