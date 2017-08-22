@@ -28,7 +28,7 @@
 
 #include <stdint.h>
 
-#define MAX_STR 255
+#define MAX_STR 512
 
 #define CP2110_VID 0x10c4
 #define CP2110_PID 0xea80

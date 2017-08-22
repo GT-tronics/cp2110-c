@@ -62,7 +62,7 @@ cp2110_enum_ary_t *CP2110_enumerate_array(void) {
         ary.numDevs++;
         p = p->next;
     }
-    
+        
     // Allocate the array of struct hid_device_info
     ary.devs = calloc(ary.numDevs, sizeof(cp2110_hid_dev_info_t));
     if( ary.devs == NULL )
@@ -76,24 +76,16 @@ cp2110_enum_ary_t *CP2110_enumerate_array(void) {
     count = 0;
     while( count < ary.numDevs )
     {
-        p->path ?strncpy(ary.devs[count].path, p->path, sizeof(ary.devs[count].path)) :NULL; 
-        p->serial_number ?wcsncpy(ary.devs[count].serial_number, p->serial_number, sizeof(ary.devs[count].serial_number)) :NULL; 
-        p->manufacturer_string ?wcsncpy(ary.devs[count].manufacturer_string, p->manufacturer_string, sizeof(ary.devs[count].manufacturer_string)) :NULL;
-        p->product_string ?wcsncpy(ary.devs[count].product_string, p->product_string, sizeof(ary.devs[count].product_string)) :NULL; 
+        p->path ?strncpy(ary.devs[count].path, p->path, MAX_STR-1) :NULL; 
+        p->serial_number ?wcsncpy(ary.devs[count].serial_number, p->serial_number, MAX_STR-1) :NULL; 
+        p->manufacturer_string ?wcsncpy(ary.devs[count].manufacturer_string, p->manufacturer_string, MAX_STR-1) :NULL;
+        p->product_string ?wcsncpy(ary.devs[count].product_string, p->product_string, MAX_STR-1) :NULL;
         ary.devs[count].vendor_id = p->vendor_id;
         ary.devs[count].product_id = p->product_id;
         ary.devs[count].release_number = p->release_number;
         ary.devs[count].usage_page = p->usage_page;
         ary.devs[count].usage = p->usage;
         ary.devs[count].interface_number = p->interface_number;
-#if 0
-        FILE* fp = fopen("test.log", "w"); 
-        fprintf(fp,"%s\n",p->path);
-        fwprintf(fp,L"%s\n",p->serial_number);
-        fwprintf(fp,L"%s\n",p->manufacturer_string);
-        fwprintf(fp,L"%s\n",p->product_string);
-        fclose(fp);
-#endif
         count++;
         p = p->next;
     }
